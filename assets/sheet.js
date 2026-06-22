@@ -51,6 +51,8 @@
                         `<div style="overflow-x:auto"><table>${thead}${tb}</table></div>`;
       };
       draw();
+      if(typeof opts.onCount==='function') opts.onCount(body.length);
+      if(opts.csvName){ window.__csv = window.__csv||{}; window.__csv[opts.csvName] = {headers, body}; }
       if(opts.searchInput){ opts.searchInput.addEventListener('input', e=>draw(e.target.value)); }
     }catch(err){
       box.innerHTML = `<div class="note">Live data didn't load (${esc(err.message)}). This table populates on the

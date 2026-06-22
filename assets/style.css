@@ -84,6 +84,65 @@ table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px;font-fa
 th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.4px}
 
+/* Sticky toolbar (search + filters stay visible while browsing) */
+.toolbar{position:sticky;top:58px;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:18px;
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-top:22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;font-weight:600;cursor:pointer;
+  padding:10px 16px;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--muted);background:none}
+.tab:hover{color:var(--brand)}
+.tab.active{color:var(--brand-dk);background:var(--soft);border-color:var(--line)}
+.tabpane{display:none}
+.tabpane.active{display:block}
+
+/* Buttons (ghost variant for downloads) */
+.btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--soft);color:var(--brand-dk)}
+.dlbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+a.btn{text-decoration:none;display:inline-block}
+.licen{background:#eef4f8;border-color:#d3e2ec}
+
+/* Compact directory rows (browsable) */
+details.jrow2{border:1px solid var(--line);border-radius:10px;margin-top:8px;background:#fff;overflow:hidden}
+details.jrow2>summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+details.jrow2>summary::-webkit-details-marker{display:none}
+details.jrow2>summary:hover{background:var(--soft)}
+details.jrow2[open]>summary{border-bottom:1px solid var(--line);background:var(--soft)}
+.jrow2 .jt{font-family:Georgia,serif;font-weight:600;color:var(--brand-dk);font-size:15.5px;flex:1;min-width:220px}
+.jrow2 .caret{color:var(--accent);font-weight:700;transition:transform .15s}
+details.jrow2[open] .caret{transform:rotate(90deg)}
+.jrow2 .body{padding:14px 16px}
+
+/* Accordion for editor history / integrity */
+details.acc{border:1px solid var(--line);border-radius:10px;margin-top:10px;background:#fff;overflow:hidden}
+details.acc>summary{list-style:none;cursor:pointer;padding:14px 16px;font-family:-apple-system,'Segoe UI',sans-serif;
+  font-weight:700;color:var(--brand-dk);display:flex;align-items:center;gap:10px}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary:hover{background:var(--soft)}
+details.acc[open]>summary{border-bottom:1px solid var(--line);background:var(--soft)}
+details.acc .caret{color:var(--accent);font-weight:700;transition:transform .15s;margin-left:auto}
+details.acc[open] .caret{transform:rotate(90deg)}
+details.acc .accbody{padding:6px 16px 16px}
+.badge{font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;color:#fff;background:var(--brand);
+  border-radius:999px;padding:2px 9px}
+.badge.soft{color:var(--brand-dk);background:var(--soft);border:1px solid var(--line)}
+.mem{color:var(--accent);font-weight:700;font-size:12px;font-family:-apple-system,sans-serif}
+
+/* Modal (license gate) */
+.modal-ov{position:fixed;inset:0;background:rgba(20,40,60,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal{background:#fff;border-radius:12px;max-width:470px;padding:24px 26px;box-shadow:0 20px 60px rgba(20,40,60,.3)}
+.modal h3{margin:0 0 10px;color:var(--brand-dk)}
+.modal p{color:var(--ink);font-size:15px;margin:0}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+/* clickable filter chips */
+.chip[data-tag]{cursor:pointer}
+.chip[data-tag]:hover{border-color:var(--brand);color:var(--brand)}
+#activeFilter{margin:10px 0 0;font-family:-apple-system,'Segoe UI',sans-serif;font-size:13px;color:var(--muted)}
+#activeFilter a{margin-left:6px}
+
 /* Footer */
 footer{max-width:var(--maxw);margin:0 auto;padding:30px 22px;color:var(--muted);font-size:13px}
 footer a{color:var(--muted)}

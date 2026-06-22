@@ -10,11 +10,11 @@
 <body>
 <header class="top">
   <div class="bar">
-    <a class="brand" href="index.html">Music Education Editors' Circle<small>Hosted by the NYU Music Experience Design Lab</small></a>
+    <a class="brand" href="index.html">Music Education Editors' Circle<small>A community of journal editors</small></a>
     <nav>
       <a href="index.html">Home</a>
+      <a href="about.html">About</a>
       <a href="journals.html">Journals</a>
-      <a href="editors.html">Editor History</a>
       <a href="integrity.html" class="active">Integrity</a>
       <a href="resources.html">Resources</a>
       <a href="https://groups.io/g/muec" target="_blank" rel="noopener">Join the list</a>
@@ -33,44 +33,60 @@
 </div>
 
 <section>
-  <span class="pill">Attribution</span>
   <div class="note" style="margin-top:0">
     These tables report findings published by others — retraction notices, Retraction Watch, and archived
     blacklists such as Beall's list — with the issuing authority and a source link shown for each row.
     They are not original accusations by the Circle. Confidence levels reflect how well-documented each flag is;
-    treat lower-confidence community flags accordingly and verify before acting.
+    verify before acting. Click a section to open it.
   </div>
-</section>
+  <div id="dl"></div>
 
-<section>
-  <span class="pill">Retractions</span>
-  <h2>Documented retractions</h2>
-  <p class="lead">Retracted articles in or adjacent to music education / music psychology.</p>
-  <div class="controls"><input type="search" id="q-ret" placeholder="Search title, author, journal, reason…"></div>
-  <div id="retractions"></div>
-</section>
+  <div class="note">Help keep this reference current. Please email documented retractions, or additions and
+    corrections to flagged venues — each with a verifiable public source — to the MUEC list at
+    <a href="mailto:muec@groups.io?subject=Research%20integrity%20update">muec@groups.io</a>
+    (or post via <a href="https://groups.io/g/muec" target="_blank" rel="noopener">groups.io/g/muec</a>).
+    Every entry must be attributable to the authority that issued it.</div>
 
-<section style="border-bottom:none">
-  <span class="pill">Predatory &amp; questionable</span>
-  <h2>Authority-flagged venues</h2>
-  <p class="lead">Venues flagged by recognised authorities as predatory or questionable, with the flagging source.</p>
-  <div class="controls"><input type="search" id="q-pred" placeholder="Search venue, network, authority…"></div>
-  <div id="predatory"></div>
+  <details class="acc" id="ret">
+    <summary>Documented retractions <span class="badge soft" id="c-ret">…</span><span class="caret">▸</span></summary>
+    <div class="accbody">
+      <p class="lead">Retracted articles in or adjacent to music education / music psychology.</p>
+      <div class="toolbar"><input type="search" id="q-ret" placeholder="Search title, author, journal, reason…" style="flex:1"></div>
+      <div id="retractions"></div>
+    </div>
+  </details>
+
+  <details class="acc" id="pred">
+    <summary>Authority-flagged predatory &amp; questionable venues <span class="badge soft" id="c-pred">…</span><span class="caret">▸</span></summary>
+    <div class="accbody">
+      <p class="lead">Venues flagged by recognised authorities, with the flagging source and a confidence level.</p>
+      <div class="toolbar"><input type="search" id="q-pred" placeholder="Search venue, network, authority…" style="flex:1"></div>
+      <div id="predatory"></div>
+    </div>
+  </details>
+
+  <div id="licen"></div>
 </section>
 
 <footer>
   <strong>Music Education Editors' Circle</strong> ·
   <span class="hosted">Hosted by the <a href="https://wp.nyu.edu/musedlab/" target="_blank" rel="noopener">NYU Music Experience Design Lab</a>.</span>
+  &nbsp;·&nbsp; Data: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="assets/ui.js"></script>
 <script src="assets/sheet.js"></script>
 <script>
-  MUECSheet.render('data/xlsx/research_integrity.xlsx', '#retractions', {
-    sheet:'Retractions', linkCols:['Source'], searchInput: document.getElementById('q-ret')
+  document.getElementById('dl').innerHTML = MUEC.downloadBar({xlsxUrl:'data/xlsx/research_integrity.xlsx', xlsxLabel:'Download dataset (XLSX)'});
+  document.getElementById('licen').innerHTML = MUEC.LICENSE_HTML;
+  MUECSheet.render('data/xlsx/research_integrity.xlsx','#retractions',{
+    sheet:'Retractions', linkCols:['Source'], searchInput:document.getElementById('q-ret'),
+    onCount:n=>document.getElementById('c-ret').textContent=n
   });
-  MUECSheet.render('data/xlsx/research_integrity.xlsx', '#predatory', {
-    sheet:'Predatory & questionable', linkCols:['Source'], searchInput: document.getElementById('q-pred')
+  MUECSheet.render('data/xlsx/research_integrity.xlsx','#predatory',{
+    sheet:'Predatory & questionable', linkCols:['Source'], searchInput:document.getElementById('q-pred'),
+    onCount:n=>document.getElementById('c-pred').textContent=n
   });
 </script>
 </body>

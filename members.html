@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Members — Music Education Editors' Circle</title>
+<meta name="description" content="Editors of music education journals — current, past, and in memoriam — derived from the open editorial-history record.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="index.html">Music Education Editors' Circle<small>A community of journal editors</small></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About</a>
+      <a href="journals.html">Journals</a>
+      <a href="integrity.html">Integrity</a>
+      <a href="resources.html">Resources</a>
+      <a href="https://groups.io/g/muec" target="_blank" rel="noopener">Join the list</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">People</span>
+    <h1>Editors of the field</h1>
+    <p>The editors who have shaped music education's journals — current, past, and in memoriam — drawn from the
+       open editorial-history record. We list editorial roles and affiliations only; personal contact details are
+       not published.</p>
+  </div>
+</div>
+
+<section>
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Search name, journal, affiliation…" style="flex:1;min-width:240px">
+    <span class="count" id="count"></span>
+    <button class="btn ghost" id="dlcsv" style="margin-left:auto">Download dataset (CSV)</button>
+  </div>
+  <div class="note" id="consent">Contact details are intentionally omitted. Editors are reached collegially via
+    <a href="https://groups.io/g/muec" target="_blank" rel="noopener">the Circle's list</a>. If you are listed and
+    would like a correction, please write to the list.</div>
+
+  <div id="people"></div>
+  <div id="licen"></div>
+</section>
+
+<footer>
+  <strong>Music Education Editors' Circle</strong> ·
+  <span class="hosted">Hosted by the <a href="https://wp.nyu.edu/musedlab/" target="_blank" rel="noopener">NYU Music Experience Design Lab</a>.</span>
+  &nbsp;·&nbsp; Data: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+  const esc=MUEC.esc;
+  const peopleEl=document.getElementById('people'), q=document.getElementById('q'), countEl=document.getElementById('count');
+  let PEOPLE=[]; // {name, category, affils:Set, roles:[{journal,role,term}], status}
+
+  function categorize(roles, status){
+    if(status && /memoriam|deceased/i.test(status)) return 'In memoriam';
+    if(roles.some(r=>/present/i.test(r.term))) return 'Current';
+    return 'Past';
+  }
+  function build(HEAD, ROWS){
+    const ci=n=>HEAD.indexOf(n);
+    const map=new Map();
+    ROWS.forEach(r=>{
+      const name=String(r[ci('Editor')]||'').trim(); if(!name) return;
+      const p=map.get(name)||{name, affils:new Set(), roles:[], status:''};
+      if(r[ci('Affiliation')]) p.affils.add(String(r[ci('Affiliation')]).trim());
+      p.roles.push({journal:r[ci('Journal')], role:r[ci('Role')], term:r[ci('Term')]});
+      if(r[ci('Status')]) p.status=String(r[ci('Status')]);
+      map.set(name,p);
+    });
+    PEOPLE=[...map.values()].map(p=>({...p, category:categorize(p.roles,p.status)}));
+  }
+  const ORDER=['Current','Past','In memoriam'];
+  function card(p){
+    const roles=p.roles.map(r=>`<li>${esc(r.journal)} — ${esc(r.role)}${r.term?` <span class="conf">(${esc(r.term)})</span>`:''}</li>`).join('');
+    return `<div class="card">
+      <h3>${esc(p.name)}${p.category==='In memoriam'?` <span class="mem">· ${esc(p.status||'in memoriam')}</span>`:''}</h3>
+      ${p.affils.size?`<p>${esc([...p.affils].join(' · '))}</p>`:''}
+      <ul class="clean" style="margin:8px 0 0">${roles}</ul>
+    </div>`;
+  }
+  function draw(term=''){
+    const t=term.trim().toLowerCase();
+    let total=0, html='';
+    ORDER.forEach(cat=>{
+      let group=PEOPLE.filter(p=>p.category===cat);
+      if(t) group=group.filter(p=>(p.name+' '+[...p.affils].join(' ')+' '+p.roles.map(r=>r.journal).join(' ')).toLowerCase().includes(t));
+      group.sort((a,b)=>a.name.split(' ').slice(-1)[0].localeCompare(b.name.split(' ').slice(-1)[0]));
+      if(!group.length) return; total+=group.length;
+      html+=`<h2 style="margin-top:30px">${cat} <span class="badge soft">${group.length}</span></h2>
+        <div class="grid g2">${group.map(card).join('')}</div>`;
+    });
+    countEl.textContent=total+' people';
+    peopleEl.innerHTML=html||'<div class="note">No matches.</div>';
+  }
+
+  fetch('data/xlsx/editorial_histories.xlsx').then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();})
+   .then(buf=>{
+      const wb=XLSX.read(buf,{type:'array'}); const ws=wb.Sheets['Editorial Histories'];
+      const aoa=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false,defval:''});
+      build(aoa[0].map(String), aoa.slice(1));
+      draw();
+      document.getElementById('licen').innerHTML=MUEC.LICENSE_HTML;
+      document.getElementById('dlcsv').addEventListener('click',()=>{
+        const rows=PEOPLE.map(p=>[p.name,p.category,[...p.affils].join('; '),p.roles.map(r=>`${r.journal} (${r.role}, ${r.term})`).join('; ')]);
+        MUEC.downloadCSV('muec_members.csv',['Name','Category','Affiliation(s)','Roles'],rows);
+      });
+   })
+   .catch(err=>{ peopleEl.innerHTML=`<div class="note">Live data didn't load (${esc(err.message)}). This page populates on the
+      published site; for local preview run <code>python3 -m http.server</code>.</div>`; });
+
+  q.addEventListener('input',e=>draw(e.target.value));
+</script>
+</body>
+</html>

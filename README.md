@@ -9,9 +9,14 @@ Target live URL: **https://nyumusedlab.github.io/muec/**
 ## Pages
 
 - `index.html` — home (mission, who we are, open-resource overview, join the list)
-- `journals.html` — searchable/filterable global journals directory
-- `editors.html` — editorial-history table (loads `data/editors.js`)
-- `resources.html` — MayDay/ACT special issue + recent editorials
+- `about.html` — purpose, organizational principles, interim steering group, policies; links to Members
+- `journals.html` — journals directory (Browse tab) + merged indexing matrix incl. CSSCI/北大核心 (Indexing tab)
+- `resources.html` — **two tabs**: Reading & collections (MayDay/ACT + editorials) and Editorial histories (the full editor dataset)
+- `integrity.html` — collapsible retractions + flagged-venue tables
+- `members.html` — people directory (Current / Past / In memoriam), linked from About; not in the top nav
+- `editors.html` — redirect to `resources.html#editorial-histories` (the page moved into Resources)
+
+Nav (all pages): Home · About · Journals · Integrity · Resources · Join the list.
 
 ## Where the content lives (edit these, not the HTML)
 
