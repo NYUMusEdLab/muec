@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Members — Music Education Editors' Circle</title>
-<meta name="description" content="Editors of music education journals — current, past, and in memoriam — derived from the open editorial-history record.">
+<title>Editors of the Field — Music Education Editors' Circle</title>
+<meta name="description" content="Editors of music education journals — current (by journal) and past (a who's-who) — derived from the open editorial-history record. Roles and affiliations only.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -26,23 +26,27 @@
   <div class="wrap">
     <span class="tag">People</span>
     <h1>Editors of the field</h1>
-    <p>The editors who have shaped music education's journals — current, past, and in memoriam — drawn from the
-       open editorial-history record. We list editorial roles and affiliations only; personal contact details are
-       not published.</p>
+    <p>The editors who shape music education's journals — current editors organised by journal, and a who's-who of
+       past editors. We list editorial roles and affiliations only; personal contact details are not published.</p>
   </div>
 </div>
 
 <section>
+  <div class="tabs">
+    <button class="tab active" data-tab="current">Current Editors</button>
+    <button class="tab" data-tab="past">Past Editors</button>
+  </div>
+
   <div class="toolbar">
     <input type="search" id="q" placeholder="Search name, journal, affiliation…" style="flex:1;min-width:240px">
-    <span class="count" id="count"></span>
     <button class="btn ghost" id="dlcsv" style="margin-left:auto">Download dataset (CSV)</button>
   </div>
-  <div class="note" id="consent">Contact details are intentionally omitted. Editors are reached collegially via
-    <a href="https://groups.io/g/muec" target="_blank" rel="noopener">the Circle's list</a>. If you are listed and
-    would like a correction, please write to the list.</div>
+  <div class="note">Contact details are intentionally omitted. Editors are reached collegially via
+    <a href="https://groups.io/g/muec" target="_blank" rel="noopener">the Circle's list</a>. Listed and want a
+    correction? Please write to the list.</div>
 
-  <div id="people"></div>
+  <div class="tabpane active" id="tab-current"><div id="current"></div></div>
+  <div class="tabpane" id="tab-past"><div id="past"></div></div>
   <div id="licen"></div>
 </section>
 
@@ -56,67 +60,87 @@
 <script src="assets/ui.js"></script>
 <script>
   const esc=MUEC.esc;
-  const peopleEl=document.getElementById('people'), q=document.getElementById('q'), countEl=document.getElementById('count');
-  let PEOPLE=[]; // {name, category, affils:Set, roles:[{journal,role,term}], status}
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+    document.querySelectorAll('.tabpane').forEach(x=>x.classList.toggle('active',x.id==='tab-'+t.dataset.tab));
+  }));
 
-  function categorize(roles, status){
-    if(status && /memoriam|deceased/i.test(status)) return 'In memoriam';
-    if(roles.some(r=>/present/i.test(r.term))) return 'Current';
-    return 'Past';
+  // Split an editor cell into individual people; skip bracketed placeholders ("[unidentified]", "[gap…]").
+  function splitNames(cell){
+    const s=String(cell||'').trim();
+    if(!s || s[0]==='[') return [];
+    return s.split(/\s*(?:&|;| and |,)\s*/i).map(x=>x.trim()).filter(Boolean);
   }
-  function build(HEAD, ROWS){
-    const ci=n=>HEAD.indexOf(n);
-    const map=new Map();
+  const surname=n=>{ const p=String(n).replace(/\(.*?\)/g,'').trim().split(/\s+/); return (p[p.length-1]||n).toLowerCase(); };
+
+  let entries=[]; // one row per (person, role)
+  function build(H,ROWS){
+    const ix=n=>H.indexOf(n);
+    entries=[];
     ROWS.forEach(r=>{
-      const name=String(r[ci('Editor')]||'').trim(); if(!name) return;
-      const p=map.get(name)||{name, affils:new Set(), roles:[], status:''};
-      if(r[ci('Affiliation')]) p.affils.add(String(r[ci('Affiliation')]).trim());
-      p.roles.push({journal:r[ci('Journal')], role:r[ci('Role')], term:r[ci('Term')]});
-      if(r[ci('Status')]) p.status=String(r[ci('Status')]);
-      map.set(name,p);
+      const journal=r[ix('Journal')], role=r[ix('Role')], term=r[ix('Term')],
+            aff=r[ix('Affiliation')], status=r[ix('Status')];
+      splitNames(r[ix('Editor')]).forEach(name=>
+        entries.push({name, journal, role, term, affiliation:aff, status, current:/present/i.test(String(term))}));
     });
-    PEOPLE=[...map.values()].map(p=>({...p, category:categorize(p.roles,p.status)}));
   }
-  const ORDER=['Current','Past','In memoriam'];
-  function card(p){
-    const roles=p.roles.map(r=>`<li>${esc(r.journal)} — ${esc(r.role)}${r.term?` <span class="conf">(${esc(r.term)})</span>`:''}</li>`).join('');
-    return `<div class="card">
-      <h3>${esc(p.name)}${p.category==='In memoriam'?` <span class="mem">· ${esc(p.status||'in memoriam')}</span>`:''}</h3>
+  function people(){
+    const m=new Map();
+    entries.forEach(e=>{ const p=m.get(e.name)||{name:e.name, affils:new Set(), roles:[], status:'', anyCurrent:false};
+      if(e.affiliation) p.affils.add(e.affiliation); p.roles.push(e);
+      if(e.status) p.status=e.status; if(e.current) p.anyCurrent=true; m.set(e.name,p); });
+    return [...m.values()];
+  }
+
+  function drawCurrent(t){
+    const byJ=new Map();
+    entries.filter(e=>e.current).forEach(e=>{ (byJ.get(e.journal)||byJ.set(e.journal,[]).get(e.journal)).push(e); });
+    let html='', count=0;
+    [...byJ.entries()].sort((a,b)=>a[0].localeCompare(b[0])).forEach(([journal,es])=>{
+      let list = t ? es.filter(e=>(e.name+' '+e.affiliation+' '+journal+' '+e.role).toLowerCase().includes(t)) : es;
+      if(!list.length) return;
+      list.sort((a,b)=>surname(a.name).localeCompare(surname(b.name)));
+      count+=list.length;
+      html+=`<h3 style="color:var(--brand-dk);margin:24px 0 0;font-size:18px">${esc(journal)}</h3>
+        <div class="grid g3">${list.map(e=>`<div class="card">
+          <h3>${esc(e.name)}</h3>
+          <p>${esc(e.role)}${e.affiliation?`<br>${esc(e.affiliation)}`:''}</p>
+        </div>`).join('')}</div>`;
+    });
+    document.getElementById('current').innerHTML =
+      `<div class="count">${count} current editorial role${count!==1?'s':''}</div>`+(html||'<div class="note">No matches.</div>');
+  }
+  function drawPast(t){
+    let ppl=people().filter(p=>!p.anyCurrent);
+    if(t) ppl=ppl.filter(p=>(p.name+' '+[...p.affils].join(' ')+' '+p.roles.map(r=>r.journal).join(' ')).toLowerCase().includes(t));
+    ppl.sort((a,b)=>surname(a.name).localeCompare(surname(b.name)));
+    const card=p=>`<div class="card">
+      <h3>${esc(p.name)}${p.status?` <span class="mem">· ${esc(p.status)}</span>`:''}</h3>
       ${p.affils.size?`<p>${esc([...p.affils].join(' · '))}</p>`:''}
-      <ul class="clean" style="margin:8px 0 0">${roles}</ul>
-    </div>`;
+      <ul class="clean" style="margin:8px 0 0">${p.roles.map(r=>`<li>${esc(r.journal)} — ${esc(r.role)}${r.term?` <span class="conf">(${esc(r.term)})</span>`:''}</li>`).join('')}</ul></div>`;
+    document.getElementById('past').innerHTML =
+      `<div class="count">${ppl.length} past editor${ppl.length!==1?'s':''}</div><div class="grid g2">${ppl.map(card).join('')}</div>`;
   }
-  function draw(term=''){
-    const t=term.trim().toLowerCase();
-    let total=0, html='';
-    ORDER.forEach(cat=>{
-      let group=PEOPLE.filter(p=>p.category===cat);
-      if(t) group=group.filter(p=>(p.name+' '+[...p.affils].join(' ')+' '+p.roles.map(r=>r.journal).join(' ')).toLowerCase().includes(t));
-      group.sort((a,b)=>a.name.split(' ').slice(-1)[0].localeCompare(b.name.split(' ').slice(-1)[0]));
-      if(!group.length) return; total+=group.length;
-      html+=`<h2 style="margin-top:30px">${cat} <span class="badge soft">${group.length}</span></h2>
-        <div class="grid g2">${group.map(card).join('')}</div>`;
-    });
-    countEl.textContent=total+' people';
-    peopleEl.innerHTML=html||'<div class="note">No matches.</div>';
-  }
+  function render(){ const t=document.getElementById('q').value.trim().toLowerCase(); drawCurrent(t); drawPast(t); }
 
   fetch('data/xlsx/editorial_histories.xlsx').then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();})
    .then(buf=>{
       const wb=XLSX.read(buf,{type:'array'}); const ws=wb.Sheets['Editorial Histories'];
       const aoa=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false,defval:''});
-      build(aoa[0].map(String), aoa.slice(1));
-      draw();
+      build(aoa[0].map(String), aoa.slice(1)); render();
       document.getElementById('licen').innerHTML=MUEC.LICENSE_HTML;
       document.getElementById('dlcsv').addEventListener('click',()=>{
-        const rows=PEOPLE.map(p=>[p.name,p.category,[...p.affils].join('; '),p.roles.map(r=>`${r.journal} (${r.role}, ${r.term})`).join('; ')]);
-        MUEC.downloadCSV('muec_members.csv',['Name','Category','Affiliation(s)','Roles'],rows);
+        const rows=people().sort((a,b)=>surname(a.name).localeCompare(surname(b.name))).map(p=>{
+          const cat=p.anyCurrent?'Current':(p.status?'In memoriam':'Past');
+          return [p.name, cat, [...p.affils].join('; '), p.roles.map(r=>`${r.journal} (${r.role}, ${r.term})`).join('; ')];
+        });
+        MUEC.downloadCSV('muec_editors.csv',['Name','Status','Affiliation(s)','Roles'],rows);
       });
    })
-   .catch(err=>{ peopleEl.innerHTML=`<div class="note">Live data didn't load (${esc(err.message)}). This page populates on the
-      published site; for local preview run <code>python3 -m http.server</code>.</div>`; });
+   .catch(err=>{ document.getElementById('current').innerHTML=`<div class="note">Live data didn't load (${esc(err.message)}). This page
+      populates on the published site; for local preview run <code>python3 -m http.server</code>.</div>`; });
 
-  q.addEventListener('input',e=>draw(e.target.value));
+  document.getElementById('q').addEventListener('input',render);
 </script>
 </body>
 </html>
