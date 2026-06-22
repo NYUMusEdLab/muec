@@ -138,7 +138,6 @@
       const matches=t?rows.filter(r=>r.join(' ').toLowerCase().includes(t)):rows;
       if(!matches.length) return; shown++;
       const sorted=[...matches].sort((a,b)=>termKey(a[ci('Term')])-termKey(b[ci('Term')]));
-      const current=rows.filter(r=>/present/i.test(String(r[ci('Term')]))).map(r=>r[ci('Editor')]);
       const body=`<div style="overflow-x:auto"><table>
         <thead><tr><th>Editor</th><th>Role</th><th>Term</th><th>Affiliation</th><th>Confidence</th><th>Source</th></tr></thead>
         <tbody>${sorted.map(r=>{const st=r[ci('Status')];return `<tr>
@@ -147,8 +146,7 @@
           <td>${esc(r[ci('Affiliation')])}</td><td>${esc(r[ci('Confidence')])}</td>
           <td>${esc(r[ci('Source')])}</td></tr>`;}).join('')}</tbody></table></div>`;
       html+=`<details class="acc" id="${slug(journal)}" ${t?'open':''}>
-        <summary>${esc(journal)} <span class="badge soft">${matches.length} editor${matches.length>1?'s':''}</span>
-        ${current.length?`<span class="badge">current: ${esc(current[0])}</span>`:''}<span class="caret">▸</span></summary>
+        <summary>${esc(journal)} <span class="badge soft">${matches.length} editor${matches.length>1?'s':''}</span><span class="caret">▸</span></summary>
         <div class="accbody">${body}</div></details>`;
     });
     box.innerHTML=`<div class="count">${shown} journal${shown!==1?'s':''}</div>`+html;
