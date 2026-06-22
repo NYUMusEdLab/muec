@@ -6,6 +6,31 @@ plain HTML/CSS/JS that runs directly on GitHub Pages.
 Target live URL: **https://nyumusedlab.github.io/muec/**
 (repository named `muec` under the `nyumusedlab` account).
 
+## Architecture & workflow
+
+There is **one source of truth**: this git repository (`NYUMusEdLab/muec`). Its history
+**is** the archive — every published version is recoverable and diffable by commit; there
+is no separate site snapshot or `gh-pages` branch to keep in sync.
+
+```
+Cowork project folder/                  CONTENT & DATA (private, never published)
+├─ Editorial Data (PRIVATE…)/           master spreadsheets you edit
+├─ *.md planning/source docs
+└─ website/   ← THIS REPO               THE SITE (code) — pushes to GitHub
+   ├─ *.html, assets/, data/            the public site
+   └─ tools/sync_public_data.py         bridges private masters → public data/xlsx/
+              │
+              └─ git push → GitHub: NYUMusEdLab/muec (main)  ← SOURCE OF TRUTH + ARCHIVE
+                                  └─ GitHub Pages serves main/root live
+```
+
+- **Edit content/data** only in the private masters, then run the sync (see below) — never
+  hand-edit `data/xlsx/`.
+- **The site deploys from `main`/root** (not a `gh-pages` branch). Just commit & push.
+- **Need a downloadable bundle?** `git archive -o muec-site.zip HEAD` always matches live —
+  don't keep stray `*-site-vN.zip` exports around; they only drift from the repo.
+- **Named snapshots** are git tags/releases (e.g. `v1.0`), not zip files.
+
 ## Pages
 
 - `index.html` — home (mission, who we are, open-resource overview, join the list)
