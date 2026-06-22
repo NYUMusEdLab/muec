@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor &amp; Reviewer Toolkit — Music Education Editors' Circle</title>
+<meta name="description" content="A submission-guidelines comparison across music education journals, and a starter library of adaptable correspondence templates for editors and reviewers.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="index.html">Music Education Editors' Circle<small>A community of journal editors</small></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="journals.html">Journals</a>
+      <a href="integrity.html">Integrity</a>
+      <a href="resources.html">Resources</a>
+      <a href="toolkit.html" class="active">Toolkit</a>
+      <a href="https://groups.io/g/muec" target="_blank" rel="noopener">Join the list</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">Editor &amp; Reviewer Toolkit</span>
+    <h1>Practical resources for the work</h1>
+    <p>A side-by-side comparison of journals' submission guidelines, and a starter library of adaptable
+       correspondence templates for editors and reviewers. Both are starting points — members are warmly invited to
+       contribute and improve them.</p>
+  </div>
+</div>
+
+<section>
+  <div class="tabs">
+    <button class="tab active" data-tab="guidelines">Submission guidelines</button>
+    <button class="tab" data-tab="templates">Templates</button>
+  </div>
+
+  <!-- SUBMISSION GUIDELINES -->
+  <div class="tabpane active" id="tab-guidelines">
+    <p class="lead" style="margin-top:22px">How journals' requirements compare — review model, length, style, AI
+       policy, access, and a link to each journal's actual guidelines.</p>
+    <div class="toolbar">
+      <input type="search" id="q-g" placeholder="Search journal, style, AI policy, access…" style="flex:1;min-width:240px">
+      <button class="btn ghost" id="dl-g" style="margin-left:auto">Download dataset (CSV)</button>
+    </div>
+    <div id="guidelines"></div>
+    <div class="note">Researched June 2026 from publishers' author pages; some fields (where a page was
+      login-gated) are marked unverified — always confirm on the live guidelines page. Corrections welcome via
+      <a href="mailto:muec@groups.io?subject=Submission%20guidelines%20update">muec@groups.io</a>.</div>
+    <div id="licen-g"></div>
+  </div>
+
+  <!-- TEMPLATES -->
+  <div class="tabpane" id="tab-templates">
+    <p class="lead" style="margin-top:22px">Adaptable examples for the moments editors and reviewers repeat —
+       desk decisions, reviewer communications, decision letters, and integrity/AI queries.</p>
+    <div class="note">These are <strong>examples to adapt</strong>, not prescriptive standards, and are not copied
+      from any journal. They are informed by COPE and ICMJE good-practice guidance and the
+      <a href="resources.html">ACT special issue</a> on the ethics of authorship, reviewership, and editorship.
+      Have a better version or a template to add? Contribute via
+      <a href="mailto:muec@groups.io?subject=Template%20contribution">muec@groups.io</a>.</div>
+    <div class="toolbar"><input type="search" id="q-t" placeholder="Search templates…" style="flex:1"></div>
+    <div id="templates"></div>
+    <div id="licen-t"></div>
+  </div>
+</section>
+
+<footer>
+  <strong>Music Education Editors' Circle</strong> ·
+  <span class="hosted">Hosted by the <a href="https://wp.nyu.edu/musedlab/" target="_blank" rel="noopener">NYU Music Experience Design Lab</a>.</span>
+  &nbsp;·&nbsp; Data: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>
+</footer>
+
+<script src="assets/ui.js"></script>
+<script src="data/submission_guidelines.js"></script>
+<script src="data/templates.js"></script>
+<script>
+  const esc=MUEC.esc;
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+    document.querySelectorAll('.tabpane').forEach(x=>x.classList.toggle('active',x.id==='tab-'+t.dataset.tab));
+  }));
+
+  // --- Submission guidelines comparison table ---
+  const G = window.MUEC_SUBGUIDE||[];
+  const cols = [["review","Review"],["words","Length"],["refstyle","Ref. style"],["ai","AI policy"],
+                ["oa","Open access / APC"],["types","Article types"],["lang","Languages"]];
+  function drawG(term=''){
+    const t=term.trim().toLowerCase();
+    const rows=G.filter(j=>!t || (j.journal+' '+cols.map(c=>j[c[0]]).join(' ')+' '+j.notes).toLowerCase().includes(t));
+    const head='<thead><tr><th>Journal</th>'+cols.map(c=>`<th>${c[1]}</th>`).join('')+'<th>Guidelines</th></tr></thead>';
+    const body='<tbody>'+rows.map(j=>'<tr><td><strong>'+esc(j.journal)+'</strong></td>'+
+        cols.map(c=>`<td>${esc(j[c[0]])}</td>`).join('')+
+        `<td>${j.url?`<a href="${esc(j.url)}" target="_blank" rel="noopener">Open ▸</a>`:''}</td></tr>`).join('')+'</tbody>';
+    document.getElementById('guidelines').innerHTML =
+      `<div class="count">${rows.length} of ${G.length} journals</div><div style="overflow-x:auto"><table>${head}${body}</table></div>`;
+  }
+  document.getElementById('q-g').addEventListener('input',e=>drawG(e.target.value));
+  drawG();
+  document.getElementById('dl-g').addEventListener('click',()=>{
+    const keys=['journal','review','words','refstyle','ai','oa','types','lang','notes','url'];
+    MUEC.downloadCSV('muec_submission_guidelines.csv', keys, G.map(j=>keys.map(k=>j[k]||'')));
+  });
+  document.getElementById('licen-g').innerHTML=MUEC.LICENSE_HTML;
+
+  // --- Templates ---
+  const T = window.MUEC_TEMPLATES||[];
+  function drawT(term=''){
+    const t=term.trim().toLowerCase();
+    const items=T.filter(x=>!t || (x.title+' '+x.group+' '+x.when+' '+x.body).toLowerCase().includes(t));
+    const groups=[...new Set(items.map(x=>x.group))];
+    let html='';
+    groups.forEach(g=>{
+      html+=`<h2 style="font-size:19px;margin-top:26px">${esc(g)}</h2>`;
+      items.filter(x=>x.group===g).forEach((x,i)=>{
+        const id='tpl-'+g.replace(/\W+/g,'')+i;
+        html+=`<details class="acc">
+          <summary>${esc(x.title)} <span class="caret">▸</span></summary>
+          <div class="accbody">
+            <p class="conf" style="margin:2px 0 10px">When to use: ${esc(x.when)}</p>
+            <button class="btn ghost" data-copy="${id}">Copy text</button>
+            <pre id="${id}" style="white-space:pre-wrap;font-family:Georgia,serif;font-size:14px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:10px">${esc(x.body)}</pre>
+          </div></details>`;
+      });
+    });
+    document.getElementById('templates').innerHTML = html || '<div class="note">No matching templates.</div>';
+  }
+  document.getElementById('q-t').addEventListener('input',e=>drawT(e.target.value));
+  drawT();
+  document.getElementById('licen-t').innerHTML=MUEC.LICENSE_HTML;
+  // copy buttons (delegated)
+  document.getElementById('templates').addEventListener('click',e=>{
+    const b=e.target.closest('[data-copy]'); if(!b) return;
+    const pre=document.getElementById(b.getAttribute('data-copy'));
+    navigator.clipboard.writeText(pre.innerText).then(()=>{ const o=b.textContent; b.textContent='Copied ✓'; setTimeout(()=>b.textContent=o,1500); });
+  });
+</script>
+</body>
+</html>
