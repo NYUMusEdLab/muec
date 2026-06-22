@@ -1,0 +1,5 @@
+# Never publish dependency installs or OS cruft
+node_modules/
+package.json
+package-lock.json
+.DS_Store

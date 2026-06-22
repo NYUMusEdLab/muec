@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journals Directory — Music Education Editors' Circle</title>
+<meta name="description" content="A searchable global directory of peer-reviewed music education journals, with links to each journal's submission guidelines and publication-ethics statements.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="index.html">Music Education Editors' Circle<small>Hosted by the NYU Music Experience Design Lab</small></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="journals.html" class="active">Journals</a>
+      <a href="editors.html">Editor History</a>
+      <a href="integrity.html">Integrity</a>
+      <a href="resources.html">Resources</a>
+      <a href="https://groups.io/g/muec" target="_blank" rel="noopener">Join the list</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">Open Resource</span>
+    <h1>Journals directory</h1>
+    <p>A global, growing directory of peer-reviewed journals that publish scholarly work in and around music
+       education — with direct links to each journal's submission guidelines and publication-ethics statements.</p>
+  </div>
+</div>
+
+<section style="border-bottom:none">
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search title, publisher, country, scope, editor…">
+    <select id="region">
+      <option value="">All regions</option>
+      <option>International</option>
+      <option>North America</option>
+      <option>Europe</option>
+      <option>Nordic</option>
+      <option>Latin America</option>
+      <option>China</option>
+      <option>Asia</option>
+      <option>Australasia</option>
+      <option>Africa</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="note" id="legend">
+    Editor names marked <span class="conf">(unverified)</span> come from secondary sources and should be
+    confirmed against the journal's live editorial-board page. A blank submission or ethics link means we have not
+    yet located a stable URL — corrections welcome via <a href="https://groups.io/g/muec" target="_blank" rel="noopener">the list</a>.
+  </div>
+</section>
+
+<section style="border-top:1px solid var(--line)">
+  <span class="pill">Indexing matrix</span>
+  <h2>Indexing &amp; abstracting at a glance</h2>
+  <p class="lead">Coverage across Scopus, Web of Science, ERIC, RILM, DOAJ and regional indexes — updated June 2026.</p>
+  <div class="controls"><input type="search" id="q-idx" placeholder="Search journal, publisher, index…"></div>
+  <div id="indexing"></div>
+
+  <h2 style="margin-top:34px">Chinese journals — CSSCI · 北大核心</h2>
+  <div class="controls"><input type="search" id="q-cn" placeholder="Search Chinese-language journals…"></div>
+  <div id="indexing-cn"></div>
+</section>
+
+<footer>
+  <strong>Music Education Editors' Circle</strong> ·
+  <span class="hosted">Hosted by the <a href="https://wp.nyu.edu/musedlab/" target="_blank" rel="noopener">NYU Music Experience Design Lab</a>.</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="assets/sheet.js"></script>
+<script>
+  MUECSheet.render('data/xlsx/journal_indexing.xlsx', '#indexing', {
+    sheet:'Profiles & Indexing', linkCols:['Journal contact / submissions'],
+    searchInput: document.getElementById('q-idx')
+  });
+  MUECSheet.render('data/xlsx/journal_indexing.xlsx', '#indexing-cn', {
+    sheet:'China journals (CSSCI · 北大核心)', searchInput: document.getElementById('q-cn')
+  });
+</script>
+<script src="data/journals.js"></script>
+<script>
+  const list = document.getElementById('list');
+  const q = document.getElementById('q');
+  const region = document.getElementById('region');
+  const countEl = document.getElementById('count');
+  const esc = s => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  function linkBtn(label, url){
+    if(url) return `<a href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`;
+    return `<a class="disabled" title="No stable link located yet">${label} —</a>`;
+  }
+
+  function render(items){
+    countEl.textContent = items.length + (items.length===1?' journal':' journals');
+    list.innerHTML = items.map(j => {
+      const idx = (j.indexing||[]).map(i => {
+        const cls = /CSSCI|北大|Scopus|SSCI|AHCI|DOAJ|ERIC|WoS|KCI/i.test(i) ? 'chip idx' : 'chip';
+        return `<span class="${cls}">${esc(i)}</span>`;
+      }).join('');
+      const ed = j.editor ? `<div class="jed">Current editor: ${esc(j.editor)}${j.editorConf==='low'||j.editorConf==='medium'?` <span class="conf">(unverified)</span>`:''}</div>` : '';
+      return `<div class="jrow">
+        <h3>${esc(j.title)}</h3>
+        ${j.trans?`<div class="trans">${esc(j.trans)}</div>`:''}
+        <div class="jmeta">
+          <span class="chip">${esc(j.region)}</span>
+          ${j.country?`<span class="chip">${esc(j.country)}</span>`:''}
+          ${j.lang?`<span class="chip">${esc(j.lang)}</span>`:''}
+          ${j.publisher?`<span class="chip">${esc(j.publisher)}</span>`:''}
+          ${j.issn?`<span class="chip">ISSN ${esc(j.issn)}</span>`:''}
+        </div>
+        <div class="jscope">${esc(j.scope)}</div>
+        <div class="jmeta">${idx}</div>
+        <div class="jlinks">
+          ${linkBtn('Journal site', j.website)}
+          ${linkBtn('Submission guidelines', j.submission)}
+          ${linkBtn('Publication ethics', j.ethics)}
+          ${j.email?`<a href="mailto:${esc(j.email)}">Submission email</a>`:''}
+        </div>
+        ${j.email?`<div class="jed">Submissions / contact: <a href="mailto:${esc(j.email)}">${esc(j.email)}</a></div>`:''}
+        ${ed}
+      </div>`;
+    }).join('');
+  }
+
+  function apply(){
+    const term = q.value.trim().toLowerCase();
+    const reg = region.value;
+    const filtered = (window.MUEC_JOURNALS||[]).filter(j => {
+      if(reg && j.region !== reg) return false;
+      if(!term) return true;
+      const hay = [j.title,j.trans,j.publisher,j.country,j.scope,j.editor,(j.indexing||[]).join(' '),j.lang].join(' ').toLowerCase();
+      return hay.includes(term);
+    }).sort((a,b)=>a.title.localeCompare(b.title));
+    render(filtered);
+  }
+
+  q.addEventListener('input', apply);
+  region.addEventListener('change', apply);
+  apply();
+</script>
+</body>
+</html>

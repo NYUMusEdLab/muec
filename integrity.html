@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Integrity — Music Education Editors' Circle</title>
+<meta name="description" content="A research-integrity reference for music education: documented retractions and authority-flagged predatory or questionable venues, each attributed to its source.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="index.html">Music Education Editors' Circle<small>Hosted by the NYU Music Experience Design Lab</small></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="journals.html">Journals</a>
+      <a href="editors.html">Editor History</a>
+      <a href="integrity.html" class="active">Integrity</a>
+      <a href="resources.html">Resources</a>
+      <a href="https://groups.io/g/muec" target="_blank" rel="noopener">Join the list</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">Reference</span>
+    <h1>Research integrity</h1>
+    <p>A reference for editors, reviewers, and authors: documented retractions in music-education and
+       music-psychology research, and venues that recognised authorities have flagged as predatory or
+       questionable. Every entry is attributed to the source that issued it.</p>
+  </div>
+</div>
+
+<section>
+  <span class="pill">Attribution</span>
+  <div class="note" style="margin-top:0">
+    These tables report findings published by others — retraction notices, Retraction Watch, and archived
+    blacklists such as Beall's list — with the issuing authority and a source link shown for each row.
+    They are not original accusations by the Circle. Confidence levels reflect how well-documented each flag is;
+    treat lower-confidence community flags accordingly and verify before acting.
+  </div>
+</section>
+
+<section>
+  <span class="pill">Retractions</span>
+  <h2>Documented retractions</h2>
+  <p class="lead">Retracted articles in or adjacent to music education / music psychology.</p>
+  <div class="controls"><input type="search" id="q-ret" placeholder="Search title, author, journal, reason…"></div>
+  <div id="retractions"></div>
+</section>
+
+<section style="border-bottom:none">
+  <span class="pill">Predatory &amp; questionable</span>
+  <h2>Authority-flagged venues</h2>
+  <p class="lead">Venues flagged by recognised authorities as predatory or questionable, with the flagging source.</p>
+  <div class="controls"><input type="search" id="q-pred" placeholder="Search venue, network, authority…"></div>
+  <div id="predatory"></div>
+</section>
+
+<footer>
+  <strong>Music Education Editors' Circle</strong> ·
+  <span class="hosted">Hosted by the <a href="https://wp.nyu.edu/musedlab/" target="_blank" rel="noopener">NYU Music Experience Design Lab</a>.</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="assets/sheet.js"></script>
+<script>
+  MUECSheet.render('data/xlsx/research_integrity.xlsx', '#retractions', {
+    sheet:'Retractions', linkCols:['Source'], searchInput: document.getElementById('q-ret')
+  });
+  MUECSheet.render('data/xlsx/research_integrity.xlsx', '#predatory', {
+    sheet:'Predatory & questionable', linkCols:['Source'], searchInput: document.getElementById('q-pred')
+  });
+</script>
+</body>
+</html>
