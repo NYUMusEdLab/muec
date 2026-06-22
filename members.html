@@ -93,6 +93,12 @@
   }
 
   function drawCurrent(t){
+    // Map each person to their non-current ("past") roles, to surface beneath the current role.
+    const pastBy=new Map();
+    entries.filter(e=>!e.current).forEach(e=>{ (pastBy.get(e.name)||pastBy.set(e.name,[]).get(e.name)).push(e); });
+    const prevHTML=name=>{ const pr=pastBy.get(name)||[]; if(!pr.length) return '';
+      return `<div class="k" style="margin-top:14px">Previously</div>`+
+        `<ul class="clean" style="margin:6px 0 0">${pr.map(r=>`<li>${esc(r.journal)} — ${esc(r.role)}${r.term?` <span class="conf">(${esc(r.term)})</span>`:''}</li>`).join('')}</ul>`; };
     const byJ=new Map();
     entries.filter(e=>e.current).forEach(e=>{ (byJ.get(e.journal)||byJ.set(e.journal,[]).get(e.journal)).push(e); });
     let html='', count=0;
@@ -105,6 +111,7 @@
         <div class="grid g3">${list.map(e=>`<div class="card">
           <h3>${esc(e.name)}</h3>
           <p>${esc(e.role)}${e.affiliation?`<br>${esc(e.affiliation)}`:''}</p>
+          ${prevHTML(e.name)}
         </div>`).join('')}</div>`;
     });
     document.getElementById('current').innerHTML =
