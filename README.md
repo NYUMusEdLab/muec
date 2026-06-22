@@ -95,13 +95,15 @@ Two have sensitive **columns** that must be stripped before publishing:
 - Editorial Histories → the `Email` column
 - Journal Profiles & Indexing → the `Integrity note` column
 
-So after editing any master, run the sync to regenerate the public copies:
+So after editing any master, run the sync to regenerate the public copies. The sync
+script lives in this repo at `tools/sync_public_data.py`; run it from the project root:
 
 ```bash
-python3 sync_public_data.py
+python3 website/tools/sync_public_data.py
 ```
 
-This writes sanitized copies into `website/data/xlsx/`. Then commit & push `website/`.
+This writes sanitized copies into `website/data/xlsx/` (and normalizes Chinese journal
+names to `English (简体)`). Then commit & push `website/`.
 (If you only edited `research_integrity` or `board_archive_pointers`, those are copied
 as-is — still run the script so the published copy matches your master.)
 
