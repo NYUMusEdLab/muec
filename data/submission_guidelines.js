@@ -3,6 +3,12 @@
    To add/edit a journal: copy a block, keep the field names. "url" should link the ACTUAL guidelines page.
    Members are invited to contribute and correct via muec@groups.io. */
 window.MUEC_SUBGUIDE = [
+  // Verified 2026-10-13 against IJMM submissions, policies_and_guidelines and style_guide pages.
+  {journal:"International Journal of Music Mediation (IJMM)", url:"https://ijmm.world/ijmm/about/submissions",
+   review:"Research articles: double-anonymous; other contributions: editorial review", words:"Articles: 50,000–60,000 characters excl. refs; practice reflections: 15,000–20,000 characters", refstyle:"APA 7th",
+   ai:"Disclose AI use beyond assistance (e.g. language editing); authors remain responsible", oa:"Diamond open access; no APCs; CC BY-NC 4.0",
+   types:"Research articles (including non-thematic contributions); practice reflections, portraits, interviews, conference reports; book reviews", lang:"English; abstracts translated into French and German",
+   notes:"Submit identified and anonymized manuscripts through the journal site. Sources: https://ijmm.world/ijmm/policies_and_guidelines ; https://ijmm.world/ijmm/style_guide . Verified 2026-10-13."},
   {journal:"Journal of Research in Music Education (JRME)", url:"https://journals.sagepub.com/author-instructions/JRM",
    review:"Double-anonymous", words:"~20–25 pp (research); short-form 4–10 pp", refstyle:"APA or Chicago (don't mix)",
    ai:"AI not an author; disclose use (SAGE policy)", oa:"Subscription/hybrid; no fees; SAGE Choice OA",
